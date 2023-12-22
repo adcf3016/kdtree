@@ -47,9 +47,9 @@ It also supports searching data in a given range.
         - Choosing the root node and recursive build subtree
     - `insert`
         - Insert new data into current k-d tree
-    - `delete`
+    <!-- - `delete`
         - Delete the provided data in k-d tree.
-        Return delete sucess or not.
+        Return delete sucess or not. -->
     - `search`
         - Return if the data provided is in the tree or not
     - `findNearest`
@@ -76,11 +76,11 @@ It also supports searching data in a given range.
 - Continue implement `kdTree`
 
 ### Week 3 (11/13)
-- Implement `insert`, `delete`, `search`
+- Implement `insert`, `search`
 
 ### Week 4 (11/20)
 - Implement `findMin`, `findMax`
-- Write pytest to test `kdTree`, `insert`, `delete`
+- Write pytest to test `kdTree`, `insert`
 
 ### Week 5 (11/27)
 - Implement `findNearest`, `rangeSearch`

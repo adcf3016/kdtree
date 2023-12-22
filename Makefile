@@ -2,16 +2,19 @@ CXX = g++
 CXXFLAGS = -O3 -Wall -shared -std=c++11 -fPIC
 PIBINDFLAG = `python3 -m pybind11 --includes` `python3-config --includes --ldflags`
 LFLAGS = -lblas
-TARGET = ./lib/kdtree_mod.so kdtree_mod
+TARGET = ./lib/kdtree_mod.so ./lib/kdtree.so kdtree_mod
 SRC = ./src/kdtree_mod_pybind.cpp ./src/kdtree_mod.cpp
 
 all: $(TARGET)
 $(TARGET): $(SRC)
 	$(CXX) -o $@ $(CXXFLAGS) $(PIBINDFLAG) $< $(LFLAGS)
+	$(CXX) -o ./lib/kdtree.so $(CXXFLAGS) $(PIBINDFLAG) ./src/kdtree_pybind.cpp $(LFLAGS)
 	g++ ./src/kdtree_mod.cpp -o kdtree_mod
 
 test: $(TARGET)
+	cd ./test
 	python3 -m pytest -v -s
+	cd ..
 
 clean:
 	rm -r -f *.o *.so __pycache__ .pytest_cache

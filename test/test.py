@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+path_scripts = Path(__file__).resolve().parents[1]
+sys.path.append(str(path_scripts))
 from lib.kdtree_mod import *
 
 # Example usage
@@ -20,3 +24,4 @@ for i in near.coordinates:
 print()
 kd_tree.traverse_and_print()
 # Call other functions as needed
+
