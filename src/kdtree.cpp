@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -28,9 +29,15 @@ struct KDNode {
 
 class KDTree {
    public:
-    KDTree(size_t dimensions) : k(dimensions), root(nullptr) {}
+    KDTree() : k(0), root(nullptr) {}
 
     void insert(const Point& point) {
+        if (k == 0) {
+            // If the dimension is not set, set it based on the length of the point
+            assert(point.coordinates.size() > 0 && "Point must have at least one coordinate.");
+            k = point.coordinates.size();
+        }
+
         root = insertRecursive(root, point, 0);
     }
 
@@ -38,11 +45,16 @@ class KDTree {
         return nearestNeighborRecursive(root, target, 0).point;
     }
 
-    // Range search method
     std::vector<Point> rangeSearch(const Point& lowerBound, const Point& upperBound) const {
         std::vector<Point> result;
         rangeSearchRecursive(root, lowerBound, upperBound, 0, result);
         return result;
+    }
+
+    void traverseAndPrint() const {
+        std::cout << "KD-tree traversal:" << std::endl;
+        traverseAndPrintRecursive(root, 0);
+        std::cout << std::endl;
     }
 
    private:
@@ -54,12 +66,26 @@ class KDTree {
             return new KDNode(point);
         }
 
-        size_t currentDimension = depth % k;
+        if (depth % k == 0) {
+            // If depth % k is 0, it means we need to split along the x-axis,
+            // so we choose the dimension based on the current depth.
+            size_t currentDimension = depth / k % point.coordinates.size();
 
-        if (point.coordinates[currentDimension] < node->point.coordinates[currentDimension]) {
-            node->left = insertRecursive(node->left, point, depth + 1);
+            if (point.coordinates[currentDimension] < node->point.coordinates[currentDimension]) {
+                node->left = insertRecursive(node->left, point, depth + 1);
+            } else {
+                node->right = insertRecursive(node->right, point, depth + 1);
+            }
         } else {
-            node->right = insertRecursive(node->right, point, depth + 1);
+            // If depth % k is not 0, it means we need to split along a different axis,
+            // so we choose the dimension based on depth % k.
+            size_t currentDimension = depth % k;
+
+            if (point.coordinates[currentDimension] < node->point.coordinates[currentDimension]) {
+                node->left = insertRecursive(node->left, point, depth + 1);
+            } else {
+                node->right = insertRecursive(node->right, point, depth + 1);
+            }
         }
 
         return node;
@@ -70,81 +96,149 @@ class KDTree {
             return KDNode(Point(std::vector<double>(k, 0.0)));
         }
 
-        size_t currentDimension = depth % k;
+        if (depth % k == 0) {
+            // If depth % k is 0, it means we need to split along the x-axis,
+            // so we choose the dimension based on the current depth.
+            size_t currentDimension = depth / k % target.coordinates.size();
 
-        KDNode* nextBranch = nullptr;
-        KDNode* oppositeBranch = nullptr;
+            KDNode* nextBranch = (target.coordinates[currentDimension] < node->point.coordinates[currentDimension]) ? node->left : node->right;
+            KDNode* oppositeBranch = (target.coordinates[currentDimension] < node->point.coordinates[currentDimension]) ? node->right : node->left;
 
-        if (target.coordinates[currentDimension] < node->point.coordinates[currentDimension]) {
-            nextBranch = node->left;
-            oppositeBranch = node->right;
-        } else {
-            nextBranch = node->right;
-            oppositeBranch = node->left;
-        }
+            KDNode best = nearestNeighborRecursive(nextBranch, target, depth + 1);
 
-        KDNode best = nearestNeighborRecursive(nextBranch, target, depth + 1);
-
-        if (target.squaredDistance(best.point) > std::abs(target.coordinates[currentDimension] - node->point.coordinates[currentDimension])) {
-            KDNode opposite = nearestNeighborRecursive(oppositeBranch, target, depth + 1);
-            if (target.squaredDistance(opposite.point) < target.squaredDistance(best.point)) {
-                best = opposite;
+            if (target.squaredDistance(best.point) > std::abs(target.coordinates[currentDimension] - node->point.coordinates[currentDimension])) {
+                KDNode opposite = nearestNeighborRecursive(oppositeBranch, target, depth + 1);
+                if (target.squaredDistance(opposite.point) < target.squaredDistance(best.point)) {
+                    best = opposite;
+                }
             }
-        }
 
-        if (target.squaredDistance(node->point) < target.squaredDistance(best.point)) {
-            best = *node;
-        }
+            if (target.squaredDistance(node->point) < target.squaredDistance(best.point)) {
+                best = *node;
+            }
 
-        return best;
+            return best;
+        } else {
+            // If depth % k is not 0, it means we need to split along a different axis,
+            // so we choose the dimension based on depth % k.
+            size_t currentDimension = depth % k;
+
+            KDNode* nextBranch = (target.coordinates[currentDimension] < node->point.coordinates[currentDimension]) ? node->left : node->right;
+            KDNode* oppositeBranch = (target.coordinates[currentDimension] < node->point.coordinates[currentDimension]) ? node->right : node->left;
+
+            KDNode best = nearestNeighborRecursive(nextBranch, target, depth + 1);
+
+            if (target.squaredDistance(best.point) > std::abs(target.coordinates[currentDimension] - node->point.coordinates[currentDimension])) {
+                KDNode opposite = nearestNeighborRecursive(oppositeBranch, target, depth + 1);
+                if (target.squaredDistance(opposite.point) < target.squaredDistance(best.point)) {
+                    best = opposite;
+                }
+            }
+
+            if (target.squaredDistance(node->point) < target.squaredDistance(best.point)) {
+                best = *node;
+            }
+
+            return best;
+        }
     }
 
-    // Helper function for range search
     void rangeSearchRecursive(KDNode* node, const Point& lowerBound, const Point& upperBound, size_t depth, std::vector<Point>& result) const {
         if (node == nullptr) {
             return;
         }
 
-        size_t currentDimension = depth % k;
+        if (depth % k == 0) {
+            // If depth % k is 0, it means we need to split along the x-axis,
+            // so we choose the dimension based on the current depth.
+            size_t currentDimension = depth / k % lowerBound.coordinates.size();
 
-        if (node->point.coordinates[currentDimension] >= lowerBound.coordinates[currentDimension] &&
-            node->point.coordinates[currentDimension] <= upperBound.coordinates[currentDimension]) {
-            // Check if the current node is within the specified range along the current dimension
+            if (node->point.coordinates[currentDimension] >= lowerBound.coordinates[currentDimension] &&
+                node->point.coordinates[currentDimension] <= upperBound.coordinates[currentDimension]) {
+                bool inRange = true;
+                for (size_t i = 0; i < k; ++i) {
+                    if (node->point.coordinates[i] < lowerBound.coordinates[i] || node->point.coordinates[i] > upperBound.coordinates[i]) {
+                        inRange = false;
+                        break;
+                    }
+                }
 
-            // Check if the point is within the range along all dimensions
-            bool inRange = true;
-            for (size_t i = 0; i < k; ++i) {
-                if (node->point.coordinates[i] < lowerBound.coordinates[i] || node->point.coordinates[i] > upperBound.coordinates[i]) {
-                    inRange = false;
-                    break;
+                if (inRange) {
+                    result.push_back(node->point);
                 }
             }
 
-            if (inRange) {
-                result.push_back(node->point);
-            }
-        }
+            rangeSearchRecursive(node->left, lowerBound, upperBound, depth + 1, result);
+            rangeSearchRecursive(node->right, lowerBound, upperBound, depth + 1, result);
+        } else {
+            // If depth % k is not 0, it means we need to split along a different axis,
+            // so we choose the dimension based on depth % k.
+            size_t currentDimension = depth % k;
 
-        // Recursively search both branches
-        rangeSearchRecursive(node->left, lowerBound, upperBound, depth + 1, result);
-        rangeSearchRecursive(node->right, lowerBound, upperBound, depth + 1, result);
+            if (node->point.coordinates[currentDimension] >= lowerBound.coordinates[currentDimension] &&
+                node->point.coordinates[currentDimension] <= upperBound.coordinates[currentDimension]) {
+                bool inRange = true;
+                for (size_t i = 0; i < k; ++i) {
+                    if (node->point.coordinates[i] < lowerBound.coordinates[i] || node->point.coordinates[i] > upperBound.coordinates[i]) {
+                        inRange = false;
+                        break;
+                    }
+                }
+
+                if (inRange) {
+                    result.push_back(node->point);
+                }
+            }
+
+            rangeSearchRecursive(node->left, lowerBound, upperBound, depth + 1, result);
+            rangeSearchRecursive(node->right, lowerBound, upperBound, depth + 1, result);
+        }
+    }
+
+    void traverseAndPrintRecursive(KDNode* node, size_t depth) const {
+        if (node != nullptr) {
+            traverseAndPrintRecursive(node->left, depth + 1);
+
+            std::cout << "Depth " << depth << ": ";
+            for (double coord : node->point.coordinates) {
+                std::cout << coord << " ";
+            }
+            std::cout << std::endl;
+
+            traverseAndPrintRecursive(node->right, depth + 1);
+        }
     }
 };
 
 int main() {
     // Example usage
-    size_t dimensions = 4;
-    KDTree kdTree(dimensions);
+    KDTree kdTree;
 
-    kdTree.insert(Point({2.0, 3.0, 4.0, 3.5}));
-    kdTree.insert(Point({5.0, 6.0, 7.0, 1.0}));
-    kdTree.insert(Point({8.0, 9.0, 10.0, 9.9}));
+    kdTree.insert(Point({2.0, 3.0, 4.0}));
+    kdTree.insert(Point({5.0, 6.0, 7.0}));
+    kdTree.insert(Point({8.0, 9.0, 10.0}));
+    kdTree.insert(Point({2.6, 5.0, 120.0}));
+    kdTree.insert(Point({1.0, 3.0, 6.0}));
+    kdTree.insert(Point({4.0, 6.0, 3.0}));
+    kdTree.insert(Point({5.0, 4.0, 8.0}));
+    // kdTree.insert(Point({1.0}));
+    // kdTree.insert(Point({2.0}));
+    // kdTree.insert(Point({3.0}));
+    // kdTree.insert(Point({4.0}));
+    // kdTree.insert(Point({5.0}));
+    // kdTree.insert(Point({6.0}));
+    // kdTree.insert(Point({7.0}));
+    // kdTree.insert(Point({8.0}));
+    // kdTree.insert(Point({9.0}));
+    // kdTree.insert(Point({10.0}));
+    // kdTree.insert(Point({11.0}));
+    // kdTree.insert(Point({12.0}));
 
-    Point lowerBound({2.0, 3.0, 3.0, 2.0});
-    Point upperBound({6.0, 7.0, 8.0, 10.0});
+    Point lowerBound({2.0, 3.0, 3.0});
+    Point upperBound({6.0, 7.0, 8.0});
 
     // Nearest neighbor search
-    Point target({3.0, 5.0, 8.0, 7.7});
+    Point target({3.0, 5.0, 8.0});
     Point nearestNeighbor = kdTree.nearestNeighbor(target);
     std::cout << "Nearest neighbor: ";
     for (double coord : nearestNeighbor.coordinates) {
@@ -162,6 +256,8 @@ int main() {
         std::cout << "| ";
     }
     std::cout << std::endl;
+
+    kdTree.traverseAndPrint();
 
     return 0;
 }
