@@ -47,17 +47,17 @@ It also supports searching data in a given range.
         - Choosing the root node and recursive build subtree
     - `insert`
         - Insert new data into current k-d tree
-    <!-- - `delete`
+    - `delete`
         - Delete the provided data in k-d tree.
-        Return delete sucess or not. -->
+        Return delete sucess or not.
     - `search`
         - Return if the data provided is in the tree or not
     - `findNearest`
         - Find the nearest node to the node provided
     - `rangeSearch`
         - Find all data with key value between lowerbound and upperbound
-    <!-- - `findMin` & `findMax`
-        - Find min/max value of the given dimension -->
+    - `findMin` & `findMax`
+        - Find min/max value of the given dimension
 
 ## Engineering Infrastructure
 1. Automatic build system: `Makefile`
@@ -79,7 +79,7 @@ It also supports searching data in a given range.
 - Implement `insert`, `search`
 
 ### Week 4 (11/20)
-<!-- - Implement `findMin`, `findMax` -->
+- Implement `findMin`, `findMax`
 - Write pytest to test `kdTree`, `insert`
 
 ### Week 5 (11/27)
