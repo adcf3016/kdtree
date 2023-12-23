@@ -7,9 +7,9 @@ SRC = ./src/kdtree_mod_pybind.cpp ./src/kdtree_mod.cpp ./src/kdtree.cpp ./src/kd
 PYTHON = python3
 DIR = ./lib/ ./build/
 
-all: $(DIR) $(TARGET)
+all: $(TARGET)
 
-$(TARGET): $(SRC)
+$(TARGET): $(DIR) $(SRC)
 	$(CXX) -o ./lib/kdtree_mod.so $(CXXFLAGS) $(PIBINDFLAG) ./src/kdtree_mod_pybind.cpp $(LFLAGS)
 	$(CXX) -o ./lib/kdtree.so $(CXXFLAGS) $(PIBINDFLAG) ./src/kdtree_pybind.cpp $(LFLAGS)
 	$(CXX) -o ./build/kdtree_mod ./src/kdtree_mod.cpp

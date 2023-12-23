@@ -79,7 +79,7 @@ It also supports searching data in a given range.
 - Implement `insert`, `search`
 
 ### Week 4 (11/20)
-- Implement `findMin`, `findMax`
+<!-- - Implement `findMin`, `findMax` -->
 - Write pytest to test `kdTree`, `insert`
 
 ### Week 5 (11/27)

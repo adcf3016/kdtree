@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from mpl_toolkits.mplot3d import Axes3D
 
 # Parse the output from C++ and store it in a list of tuples (x, y, z, depth, split_dim)
 tree_data = [

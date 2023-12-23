@@ -1,8 +1,8 @@
-
 #include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <vector>
 
 struct Point {
@@ -60,6 +60,20 @@ class KDTree {
         std::cout << "KD-tree traversal:" << std::endl;
         traverseAndPrintRecursive(root, 0);
         std::cout << std::endl;
+    }
+
+    double findMinValueInDimension(size_t dimension) const {
+        assert(dimension < k && "Invalid dimension");
+        return minInDimensionRecursive(root, dimension, 0);
+    }
+
+    double findMaxValueInDimension(size_t dimension) const {
+        assert(dimension < k && "Invalid dimension");
+        return maxInDimensionRecursive(root, dimension, 0);
+    }
+
+    bool containsPoint(const Point& point) const {
+        return containsPointRecursive(root, point, 0);
     }
 
    private:
@@ -157,6 +171,70 @@ class KDTree {
             traverseAndPrintRecursive(node->right, depth + 1);
         }
     }
+
+    double minInDimensionRecursive(KDNode* node, size_t dimension, size_t depth) const {
+        if (node == nullptr) {
+            // Return a large value for nodes that don't exist
+            return std::numeric_limits<double>::infinity();
+        }
+
+        size_t currentDimension = node->splitDimension;
+
+        if (dimension == currentDimension) {
+            // If this is the target dimension, recurse only on the relevant branch
+            if (node->left == nullptr) {
+                return node->point.coordinates[dimension];
+            } else {
+                return minInDimensionRecursive(node->left, dimension, depth + 1);
+            }
+        } else {
+            // If this is not the target dimension, consider both branches
+            double leftMin = minInDimensionRecursive(node->left, dimension, depth + 1);
+            double rightMin = minInDimensionRecursive(node->right, dimension, depth + 1);
+            return std::min(node->point.coordinates[dimension], std::min(leftMin, rightMin));
+        }
+    }
+
+    double maxInDimensionRecursive(KDNode* node, size_t dimension, size_t depth) const {
+        if (node == nullptr) {
+            // Return a small value for nodes that don't exist
+            return -std::numeric_limits<double>::infinity();
+        }
+
+        size_t currentDimension = node->splitDimension;
+
+        if (dimension == currentDimension) {
+            // If this is the target dimension, recurse only on the relevant branch
+            if (node->right == nullptr) {
+                return node->point.coordinates[dimension];
+            } else {
+                return maxInDimensionRecursive(node->right, dimension, depth + 1);
+            }
+        } else {
+            // If this is not the target dimension, consider both branches
+            double leftMax = maxInDimensionRecursive(node->left, dimension, depth + 1);
+            double rightMax = maxInDimensionRecursive(node->right, dimension, depth + 1);
+            return std::max(node->point.coordinates[dimension], std::max(leftMax, rightMax));
+        }
+    }
+
+    bool containsPointRecursive(KDNode* node, const Point& target, size_t depth) const {
+        if (node == nullptr) {
+            return false;
+        }
+
+        size_t currentDimension = node->splitDimension;
+
+        if (node->point.coordinates == target.coordinates) {
+            return true;
+        }
+
+        if (target.coordinates[currentDimension] < node->point.coordinates[currentDimension]) {
+            return containsPointRecursive(node->left, target, depth + 1);
+        } else {
+            return containsPointRecursive(node->right, target, depth + 1);
+        }
+    }
 };
 
 int main() {
@@ -172,7 +250,14 @@ int main() {
              Point({19.0, 20.0, 21.0}),
              Point({22.0, 23.0, 24.0}),
              Point({25.0, 26.0, 27.0}),
-             Point({28.0, 29.0, 30.0})}) {
+             Point({28.0, 29.0, 30.0}),
+             Point({2.0, 3.0, 4.0}),
+             Point({5.0, 6.0, 7.0}),
+             Point({8.0, 9.0, 10.0}),
+             Point({2.6, 5.0, 120.0}),
+             Point({1.0, 3.0, 6.0}),
+             Point({4.0, 6.0, 3.0}),
+             Point({5.0, 4.0, 8.0})}) {
         kdTree.insert(point);
     }
 
@@ -184,6 +269,18 @@ int main() {
         std::cout << coord << " ";
     }
     std::cout << std::endl;
+
+    size_t dimensionToCheck = 2;
+    double minValue = kdTree.findMinValueInDimension(dimensionToCheck);
+    double maxValue = kdTree.findMaxValueInDimension(dimensionToCheck);
+
+    std::cout << "Min value in dimension " << dimensionToCheck << ": " << minValue << std::endl;
+    std::cout << "Max value in dimension " << dimensionToCheck << ": " << maxValue << std::endl;
+
+    Point pointToCheck({16.0, 17.0, 18.0});
+    bool containsPoint = kdTree.containsPoint(pointToCheck);
+    std::cout << "Contains point: " << (containsPoint ? "Yes" : "No") << std::endl;
+
     kdTree.traverseAndPrint();
 
     return 0;
