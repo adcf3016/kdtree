@@ -23,12 +23,13 @@ $(DIR):
 	mkdir -p build
 
 test: $(LIB)
-	cd ./test
+	cd test/modify; \
 	$(PYTHON) -m pytest -v -s
-	cd ..
+	cd test/normal; \
+	$(PYTHON) -m pytest -v -s
 
 clean:
-	rm -r -f *.o *.so __pycache__ .pytest_cache build lib
+	rm -r -f *.o *.so __pycache__ .pytest_cache build lib ./test/modify/__pycache__ ./test/modify/.pytest_cache ./test/normal/__pycache__ ./test/normal/.pytest_cache
 
 animate:
 	$(PYTHON) ./animation/animation.py

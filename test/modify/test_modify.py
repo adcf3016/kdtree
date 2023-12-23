@@ -1,9 +1,10 @@
 import sys
 from pathlib import Path
-path_scripts = Path(__file__).resolve().parents[1]
+path_scripts = Path(__file__).resolve().parents[2]
 sys.path.append(str(path_scripts))
-from lib.kdtree import *
+from lib.kdtree_mod import *
 import pytest
+
 
 def test_nearest_neighbor():
     kd_tree = KDTree()
@@ -24,6 +25,7 @@ def test_nearest_neighbor():
     kd_tree.insert(Point([1.0, 3.0, 6.0]))
     kd_tree.insert(Point([4.0, 6.0, 3.0]))
     kd_tree.insert(Point([5.0, 4.0, 8.0]))
+    kd_tree.build()
     near = kd_tree.nearest_neighbor(Point([3.0, 5.0, 8.0]))
     assert(near.coordinates[0] == 5.0)
     assert(near.coordinates[1] == 4.0)
@@ -48,17 +50,18 @@ def test_range_search():
     kd_tree.insert(Point([1.0, 3.0, 6.0]))
     kd_tree.insert(Point([4.0, 6.0, 3.0]))
     kd_tree.insert(Point([5.0, 4.0, 8.0]))
+    kd_tree.build()
     result = kd_tree.range_search(Point([2.0, 3.0, 3.0]), Point([6.0, 7.0, 8.0]))
     i = 0
     assert(result[i].coordinates[0] == 4.0 and result[i].coordinates[1] == 5.0 and result[i].coordinates[2] == 6.0)
     i += 1
     assert(result[i].coordinates[0] == 2.0 and result[i].coordinates[1] == 3.0 and result[i].coordinates[2] == 4.0)
     i += 1
-    assert(result[i].coordinates[0] == 5.0 and result[i].coordinates[1] == 4.0 and result[i].coordinates[2] == 8.0)
+    assert(result[i].coordinates[0] == 4.0 and result[i].coordinates[1] == 6.0 and result[i].coordinates[2] == 3.0)
     i += 1
     assert(result[i].coordinates[0] == 5.0 and result[i].coordinates[1] == 6.0 and result[i].coordinates[2] == 7.0)
     i += 1
-    assert(result[i].coordinates[0] == 4.0 and result[i].coordinates[1] == 6.0 and result[i].coordinates[2] == 3.0)
+    assert(result[i].coordinates[0] == 5.0 and result[i].coordinates[1] == 4.0 and result[i].coordinates[2] == 8.0)
 
 def test_find_min_in_dimension():
     kd_tree = KDTree()
@@ -79,6 +82,7 @@ def test_find_min_in_dimension():
     kd_tree.insert(Point([1.0, 3.0, 6.0]))
     kd_tree.insert(Point([4.0, 6.0, 3.0]))
     kd_tree.insert(Point([5.0, 4.0, 8.0]))
+    kd_tree.build()
     result = kd_tree.find_min_value_in_dimension(0)
     assert(result == 1.0)
     result = kd_tree.find_min_value_in_dimension(1)
@@ -105,6 +109,7 @@ def test_find_max_in_dimension():
     kd_tree.insert(Point([1.0, 3.0, 6.0]))
     kd_tree.insert(Point([4.0, 6.0, 3.0]))
     kd_tree.insert(Point([5.0, 4.0, 8.0]))
+    kd_tree.build()
     result = kd_tree.find_max_value_in_dimension(0)
     assert(result == 28.0)
     result = kd_tree.find_max_value_in_dimension(1)
@@ -131,6 +136,7 @@ def test_contains_point():
     kd_tree.insert(Point([1.0, 3.0, 6.0]))
     kd_tree.insert(Point([4.0, 6.0, 3.0]))
     kd_tree.insert(Point([5.0, 4.0, 8.0]))
+    kd_tree.build()
     result = kd_tree.contains_point(Point([4.0, 6.0, 3.0]))
     assert(result == True)
     result = kd_tree.contains_point(Point([2.0, 3.0, 5.0]))
