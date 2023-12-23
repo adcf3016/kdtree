@@ -3,6 +3,7 @@ from pathlib import Path
 path_scripts = Path(__file__).resolve().parents[1]
 sys.path.append(str(path_scripts))
 from lib.kdtree import *
+import pytest
 
 # Example usage
 kd_tree = KDTree()
@@ -16,7 +17,6 @@ kd_tree.insert(Point([19.0, 20.0, 21.0]))
 kd_tree.insert(Point([22.0, 23.0, 24.0]))
 kd_tree.insert(Point([25.0, 26.0, 27.0]))
 kd_tree.insert(Point([28.0, 29.0, 30.0]))
-# kd_tree.nearest_neighbor(Point([3.0, 5.0, 8.0]))
 near = kd_tree.nearest_neighbor(Point([30.0, 0.0, 30.0]))
 for i in near.coordinates:
     print(i, end=' ')

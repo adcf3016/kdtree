@@ -84,7 +84,7 @@ class KDTree {
         if (depth % k == 0) {
             // If depth % k is 0, it means we need to split along the x-axis,
             // so we choose the dimension based on the current depth.
-            size_t currentDimension = depth / k % point.coordinates.size();
+            size_t currentDimension = 0;
 
             if (point.coordinates[currentDimension] < node->point.coordinates[currentDimension]) {
                 node->left = insertRecursive(node->left, point, depth + 1);
@@ -114,7 +114,7 @@ class KDTree {
         if (depth % k == 0) {
             // If depth % k is 0, it means we need to split along the x-axis,
             // so we choose the dimension based on the current depth.
-            size_t currentDimension = depth / k % target.coordinates.size();
+            size_t currentDimension = 0;
 
             KDNode* nextBranch = (target.coordinates[currentDimension] < node->point.coordinates[currentDimension]) ? node->left : node->right;
             KDNode* oppositeBranch = (target.coordinates[currentDimension] < node->point.coordinates[currentDimension]) ? node->right : node->left;
@@ -166,7 +166,7 @@ class KDTree {
         if (depth % k == 0) {
             // If depth % k is 0, it means we need to split along the x-axis,
             // so we choose the dimension based on the current depth.
-            size_t currentDimension = depth / k % lowerBound.coordinates.size();
+            size_t currentDimension = 0;
 
             if (node->point.coordinates[currentDimension] >= lowerBound.coordinates[currentDimension] &&
                 node->point.coordinates[currentDimension] <= upperBound.coordinates[currentDimension]) {
@@ -280,7 +280,6 @@ class KDTree {
         if (node->point.coordinates == target.coordinates) {
             return true;
         }
-
         if (target.coordinates[currentDimension] < node->point.coordinates[currentDimension]) {
             return containsPointRecursive(node->left, target, depth + 1);
         } else {
@@ -363,9 +362,13 @@ int main() {
     std::cout << "Min value in dimension " << dimensionToCheck << ": " << minValue << std::endl;
     std::cout << "Max value in dimension " << dimensionToCheck << ": " << maxValue << std::endl;
 
-    Point pointToCheck({16.1, 17.0, 18.0});
+    Point pointToCheck({4.0, 6.0, 3.0});
     bool containsPoint = kdTree.containsPoint(pointToCheck);
     std::cout << "Contains point: " << (containsPoint ? "Yes" : "No") << std::endl;
+
+    // Point pointToCheck2({1.0, 2.0, 3.0});
+    // containsPoint = kdTree.containsPoint(pointToCheck2);
+    // std::cout << "Contains point: " << (containsPoint ? "Yes" : "No") << std::endl;
 
     kdTree.traverseAndPrint();
 

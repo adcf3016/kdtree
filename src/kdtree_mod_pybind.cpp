@@ -22,5 +22,8 @@ PYBIND11_MODULE(kdtree_mod, m) {
         .def("build", &KDTree::build)
         .def("nearest_neighbor", &KDTree::nearestNeighbor)
         .def("range_search", &KDTree::rangeSearch)
-        .def("traverse_and_print", &KDTree::traverseAndPrint);
+        .def("traverse_and_print", &KDTree::traverseAndPrint)
+        .def("find_min_value_in_dimension", &KDTree::findMinValueInDimension)
+        .def("find_max_value_in_dimension", &KDTree::findMaxValueInDimension)
+        .def("contains_point", &KDTree::containsPoint);
 }

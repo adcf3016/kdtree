@@ -2,16 +2,19 @@ CXX = g++
 CXXFLAGS = -O3 -Wall -shared -std=c++11 -fPIC
 PIBINDFLAG = `python3 -m pybind11 --includes` `python3-config --includes --ldflags`
 LFLAGS = -lblas
-TARGET = ./lib/kdtree_mod.so ./lib/kdtree.so ./build/kdtree_mod ./build/kdtree
+LIB = ./lib/kdtree_mod.so ./lib/kdtree.so
+TARGET = ./build/kdtree_mod ./build/kdtree
 SRC = ./src/kdtree_mod_pybind.cpp ./src/kdtree_mod.cpp ./src/kdtree.cpp ./src/kdtree_pybind.cpp
 PYTHON = python3
 DIR = ./lib/ ./build/
 
-all: $(TARGET)
+all: $(LIB) $(TARGET)
 
-$(TARGET): $(DIR) $(SRC)
+$(LIB): $(DIR) $(SRC)
 	$(CXX) -o ./lib/kdtree_mod.so $(CXXFLAGS) $(PIBINDFLAG) ./src/kdtree_mod_pybind.cpp $(LFLAGS)
 	$(CXX) -o ./lib/kdtree.so $(CXXFLAGS) $(PIBINDFLAG) ./src/kdtree_pybind.cpp $(LFLAGS)
+
+$(TARGET): $(DIR) $(SRC)
 	$(CXX) -o ./build/kdtree_mod ./src/kdtree_mod.cpp
 	$(CXX) -o ./build/kdtree ./src/kdtree.cpp
 
@@ -19,7 +22,7 @@ $(DIR):
 	mkdir -p lib
 	mkdir -p build
 
-test: $(TARGET)
+test: $(LIB)
 	cd ./test
 	$(PYTHON) -m pytest -v -s
 	cd ..

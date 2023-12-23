@@ -86,7 +86,7 @@ class KDTree {
             return nullptr;
         }
 
-        size_t currentDimension = depth % k;
+        size_t currentDimension = findBestSplitDimension(points, begin, end);
         size_t medianIndex = findMedianIndex(points, begin, end, currentDimension);
 
         KDNode* node = new KDNode(points[medianIndex], currentDimension);
@@ -95,6 +95,37 @@ class KDTree {
         node->right = buildRecursive(points, medianIndex + 1, end, depth + 1);
 
         return node;
+    }
+
+    size_t findBestSplitDimension(std::vector<Point>& points, size_t begin, size_t end) const {
+        double bestVariance = -1.0;
+        size_t bestDimension = 0;
+
+        for (size_t dim = 0; dim < k; ++dim) {
+            double variance = calculateVariance(points, begin, end, dim);
+            if (variance > bestVariance) {
+                bestVariance = variance;
+                bestDimension = dim;
+            }
+        }
+
+        return bestDimension;
+    }
+
+    double calculateVariance(std::vector<Point>& points, size_t begin, size_t end, size_t dimension) const {
+        double sum = 0.0;
+        double sumSquared = 0.0;
+
+        for (size_t i = begin; i < end; ++i) {
+            double value = points[i].coordinates[dimension];
+            sum += value;
+            sumSquared += value * value;
+        }
+
+        double mean = sum / static_cast<double>(end - begin);
+        double variance = (sumSquared / static_cast<double>(end - begin)) - (mean * mean);
+
+        return variance;
     }
 
     size_t findMedianIndex(std::vector<Point>& points, size_t begin, size_t end, size_t currentDimension) {
