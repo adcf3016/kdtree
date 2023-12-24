@@ -42,4 +42,7 @@ ax.set_zlabel('Z')
 # Create animation
 ani = animation.FuncAnimation(fig, update, frames=len(tree_data[0]), fargs=(sc, txt), interval=1000, blit=False)
 
+# Save animation as a GIF file
+ani.save('./animation/gif/kdtree_animation.gif', writer='pillow', fps=1)
+
 plt.show()

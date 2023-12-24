@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib.animation as animation
 
@@ -69,5 +68,8 @@ def update(num):
             plane.set_visible(False)
 
 ani = animation.FuncAnimation(fig, update, frames=len(tree_data[0]), interval=1000, blit=False)
+
+# Save animation as a GIF file
+ani.save('./animation/gif/kdtree_animation3.gif', writer='pillow', fps=1)
 
 plt.show()

@@ -72,4 +72,7 @@ planes = [ax.plot_surface(x_plane, y_plane, z_plane, color='blue', alpha=0.3)]
 # Create animation
 ani = animation.FuncAnimation(fig, update, frames=len(tree_data[0]), fargs=(sc, txt, planes), interval=1000, blit=False)
 
+# Save animation as a GIF file
+ani.save('./animation/gif/kdtree_animation2.gif', writer='pillow', fps=1)
+
 plt.show()
